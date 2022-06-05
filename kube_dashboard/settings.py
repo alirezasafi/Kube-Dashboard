@@ -74,3 +74,5 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+KUBERNETES_HOST = "https://192.168.8.235:6443"
