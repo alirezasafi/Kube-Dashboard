@@ -13,6 +13,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'kube_resource',
+    'authentication'
 ]
 
 MIDDLEWARE = [
@@ -75,4 +78,18 @@ USE_TZ = True
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-KUBERNETES_HOST = "https://192.168.8.235:6443"
+KUBERNETES_HOST = ""
+REST_FRAMEWORK = {
+    # 'DEFAULT_RENDERER_CLASSES': [
+    #     'rest_framework.renderers.JSONRenderer',
+    # ],
+    # 'DEFAULT_PARSER_CLASSES': [
+    #     'rest_framework.parsers.JSONParser',
+    # ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'authentication.authentication.KubeAuthentication'
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'authentication.permission.IsAuthenticated'
+    ]
+}
