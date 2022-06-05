@@ -1,1 +1,4 @@
 Django==4.0.4
+kubernetes==23.6.0
+djangorestframework==3.13.1
+python-magic==0.4.26
