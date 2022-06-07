@@ -6,25 +6,33 @@ from .client import KubeClient
 class Manager:
     _client = KubeClient()
 
-    def list(self, configuration, namespace="default"):
-        """get the list of resource of object."""
+    def get_resource_object(self):
         if not self.Meta.resource_object:
             raise NotImplementedError(f"the resource obj attr not defined in class: {self}")
-        resource_obj = self.Meta.resource_object
-        return self._client.list(namespace, resource_obj, configuration)
+        return self.Meta.resource_object
+
+    def list(self, configuration, namespace="default", selectors={}):
+        """get the list of resource of object."""
+        resource_obj = self.get_resource_object()
+        return self._client.list(namespace, selectors, resource_obj, configuration)
+
+    def get(self, configuration, name, namespace="default"):
+        """get the resource object details"""
+        resource_obj = self.get_resource_object()
+        return self._client.get(namespace, name, resource_obj, configuration)
 
     def serialize(self, data, many=False):
         """serialize kube-client response to json data"""
-        items = data.items
-        response = []
+        if not hasattr(self, "fields"):
+            raise NotImplementedError("use proper serializer to serialize data")
         if many:
-            if not hasattr(self, "fields"):
-                raise NotImplementedError("use proper serializer to serialize data")
+            response = []
+            items = data.items
             for item in items:
                 response.append(self.to_representation_data(item.to_dict(), self.fields.values()))
             return response
         else:
-            return self.to_representation_data(data.items, self.fields.values())
+            return self.to_representation_data(data.to_dict(), self.fields.values())
 
     def to_representation_data(self, data, fields):
         """use serializer field to get the proper value"""

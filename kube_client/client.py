@@ -8,6 +8,9 @@ class KubeClient:
     apps_v1_list_func_mapping = {
         "DEPLOYMENT": 'list_namespaced_deployment',
     }
+    apps_v1_get_func_mapping = {
+        "DEPLOYMENT": 'read_namespaced_deployment'
+    }
 
     @staticmethod
     def apps_v1_client(configuration):
@@ -35,5 +38,19 @@ class KubeClient:
         return self._make_func_call(
             self.apps_v1_client(configuration),
             self.apps_v1_list_func_mapping[resource_obj],
+            **func_args
+        )
+
+    def get(self, namespace, name, resource_obj, configuration):
+        """use apps-v1-client to get the resource object details"""
+        if resource_obj not in self.apps_v1_get_func_mapping:
+            raise ValueError("the resource object isn't valid!")
+        func_args = {
+            "name": name,
+            "namespace": namespace
+        }
+        return self._make_func_call(
+            self.apps_v1_client(configuration),
+            self.apps_v1_get_func_mapping[resource_obj],
             **func_args
         )
