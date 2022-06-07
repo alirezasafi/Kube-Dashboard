@@ -43,3 +43,4 @@ class Deployment(serializers.Serializer, Manager):
 
     class Meta:
         resource_object = "DEPLOYMENT"
+        api_client = "apps_v1"

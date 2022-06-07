@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from kube_client.manager import Manager
-from .common import ObjectMeta
+from .common import ObjectMeta, LocalObjectReference
 
 
 class ContainerPort(serializers.Serializer):
@@ -214,9 +214,9 @@ class PodSpec(serializers.Serializer):
     selector = serializers.DictField()
     service_account_name = serializers.CharField(default="default")
     automount_service_account_token = serializers.BooleanField()
-    # imagePullSecrets = serializers.ListField(
-    #     child=LocalObjectReference()
-    # )
+    image_pull_secrets = serializers.ListField(
+        child=LocalObjectReference()
+    )
     init_containers = serializers.ListField(
         child=Container()
     )
@@ -233,3 +233,4 @@ class Pod(serializers.Serializer, Manager):
 
     class Meta:
         resource_object = "POD"
+        api_client = "core_v1"
