@@ -6,20 +6,20 @@ from .client import KubeClient
 class Manager:
     _client = KubeClient()
 
-    def get_resource_object(self):
-        if not self.Meta.resource_object:
-            raise NotImplementedError(f"the resource obj attr not defined in class: {self}")
-        return self.Meta.resource_object
+    def get_resource_meta_data(self) -> (str, str):
+        if not self.Meta.resource_object or not self.Meta.api_client:
+            raise NotImplementedError(f"the resource_obj or api_client not defined in class: {self}")
+        return self.Meta.resource_object, self.Meta.api_client
 
     def list(self, configuration, namespace="default", selectors={}):
         """get the list of resource of object."""
-        resource_obj = self.get_resource_object()
-        return self._client.list(namespace, selectors, resource_obj, configuration)
+        resource_obj, api_client = self.get_resource_meta_data()
+        return self._client.list(namespace, selectors, resource_obj, api_client, configuration)
 
     def get(self, configuration, name, namespace="default"):
         """get the resource object details"""
-        resource_obj = self.get_resource_object()
-        return self._client.get(namespace, name, resource_obj, configuration)
+        resource_obj, api_client = self.get_resource_meta_data()
+        return self._client.get(namespace, name, resource_obj, api_client, configuration)
 
     def serialize(self, data, many=False):
         """serialize kube-client response to json data"""
