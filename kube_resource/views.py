@@ -5,6 +5,7 @@ from .serializers.deployment import Deployment
 
 
 class DeploymentView(ViewSet):
+    lookup_field_kwargs = "name"
     serializer_class = Deployment
 
     def list(self, request, *args, **kwargs):
@@ -19,4 +20,11 @@ class DeploymentView(ViewSet):
         deployment = self.serializer_class()
         response = deployment.list(request.auth, namespace, selectors)
         response_data = deployment.serialize(response, many=True)
+        return Response(data=response_data, status=status.HTTP_200_OK)
+
+    def retrieve(self, request, *args, **kwargs):
+        name = kwargs.get(self.lookup_field_kwargs)
+        deployment = self.serializer_class()
+        response = deployment.get(request.auth, name)
+        response_data = deployment.serialize(response)
         return Response(data=response_data, status=status.HTTP_200_OK)
