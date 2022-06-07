@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from kube_client.manager import Manager
 from .common import ObjectMeta
 
 
@@ -226,6 +227,9 @@ class PodTemplateSpec(serializers.Serializer):
     spec = PodSpec()
 
 
-class Pod(serializers.Serializer):
+class Pod(serializers.Serializer, Manager):
     metadata = ObjectMeta()
     spec = PodSpec()
+
+    class Meta:
+        resource_object = "POD"
