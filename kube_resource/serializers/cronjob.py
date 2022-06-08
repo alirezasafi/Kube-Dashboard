@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from kubernetes import client
 from .job import JobTemplateSpec
 from .common import ObjectMeta, ObjectReference
 
@@ -12,6 +13,9 @@ class CronJobSpec(serializers.Serializer):
     successful_job_history_limit = serializers.IntegerField()
     suspend = serializers.BooleanField()
 
+    class Meta:
+        model = client.V1CronJobSpec
+
 
 class CronJobStatus(serializers.Serializer):
     active = serializers.ListField(
@@ -19,8 +23,14 @@ class CronJobStatus(serializers.Serializer):
     )
     last_schedule_time = serializers.DateTimeField(read_only=True)
 
+    class Meta:
+        model = client.V1CronJobStatus
+
 
 class CronJob(serializers.Serializer):
     metadata = ObjectMeta()
     spec = CronJobSpec()
     status = CronJobStatus()
+
+    class Meta:
+        model = client.V1CronJob
