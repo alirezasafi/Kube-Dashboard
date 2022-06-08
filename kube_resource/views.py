@@ -16,34 +16,13 @@ class ResourceView(ViewSet):
             selectors['label_selector'] = label_selector
         return selectors
 
-
-class NameSpaceView(ResourceView):
-    lookup_field_kwargs = "name"
-    serializer_class = namespace.Namespace
+    def get_client_kwargs(self):
+        return {}
 
     def list(self, request, *args, **kwargs):
         serializer = self.serializer_class()
         selectors = self.get_selectors()
-        response = serializer.list(request.auth, selectors)
-        response_data = serializer.serialize(response, many=True)
-        return Response(data=response_data, status=status.HTTP_200_OK)
-
-    def retrieve(self, request, *args, **kwargs):
-        name = kwargs.get(self.lookup_field_kwargs)
-        serializer = self.serializer_class()
-        response = serializer.get(request.auth, name)
-        response_data = serializer.serialize(response)
-        return Response(data=response_data, status=status.HTTP_200_OK)
-
-
-class DeploymentView(ResourceView):
-    lookup_field_kwargs = "name"
-    serializer_class = deployment.Deployment
-
-    def list(self, request, *args, **kwargs):
-        serializer = self.serializer_class()
-        client_kwargs = {"namespace": request.query_params.get("namespace", "default")}
-        selectors = self.get_selectors()
+        client_kwargs = self.get_client_kwargs()
         response = serializer.list(request.auth, selectors, **client_kwargs)
         response_data = serializer.serialize(response, many=True)
         return Response(data=response_data, status=status.HTTP_200_OK)
@@ -51,25 +30,32 @@ class DeploymentView(ResourceView):
     def retrieve(self, request, *args, **kwargs):
         name = kwargs.get(self.lookup_field_kwargs)
         serializer = self.serializer_class()
-        response = serializer.get(request.auth, name)
+        response = serializer.get(request.auth, **{"name": name})
         response_data = serializer.serialize(response)
         return Response(data=response_data, status=status.HTTP_200_OK)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        client_kwargs = self.get_client_kwargs()
+        response = serializer.create_resource(request.auth, **client_kwargs)
+        response_data = serializer.serialize(response)
+        return Response(data=response_data, status=status.HTTP_200_OK)
+
+
+class NameSpaceView(ResourceView):
+    lookup_field_kwargs = "name"
+    serializer_class = namespace.Namespace
+
+
+class DeploymentView(ResourceView):
+    lookup_field_kwargs = "name"
+    serializer_class = deployment.Deployment
+
+    def get_client_kwargs(self):
+        return {"namespace": self.request.query_params.get("namespace", "default")}
 
 
 class PodView(ResourceView):
     lookup_field_kwargs = "name"
     serializer_class = pod.Pod
-
-    def list(self, request, *args, **kwargs):
-        serializer = self.serializer_class()
-        selectors = self.get_selectors()
-        response = serializer.list(request.auth, selectors)
-        response_data = serializer.serialize(response, many=True)
-        return Response(data=response_data, status=status.HTTP_200_OK)
-
-    def retrieve(self, request, *args, **kwargs):
-        name = kwargs.get(self.lookup_field_kwargs)
-        serializer = self.serializer_class()
-        response = serializer.get(request.auth, name)
-        response_data = serializer.serialize(response)
-        return Response(data=response_data, status=status.HTTP_200_OK)
