@@ -40,7 +40,14 @@ class ResourceView(ViewSet):
         client_kwargs = self.get_client_kwargs()
         response = serializer.create_resource(request.auth, **client_kwargs)
         response_data = serializer.serialize(response)
-        return Response(data=response_data, status=status.HTTP_200_OK)
+        return Response(data=response_data, status=status.HTTP_201_CREATED)
+
+    def destroy(self, request, *args, **kwargs):
+        name = kwargs.get(self.lookup_field_kwargs)
+        client_kwargs = self.get_client_kwargs()
+        serializer = self.serializer_class()
+        serializer.destroy(request.auth, name, **client_kwargs)
+        return Response(data={"message": "successfully deleted!"}, status=status.HTTP_204_NO_CONTENT)
 
 
 class NameSpaceView(ResourceView):
@@ -59,3 +66,6 @@ class DeploymentView(ResourceView):
 class PodView(ResourceView):
     lookup_field_kwargs = "name"
     serializer_class = pod.Pod
+
+    def get_client_kwargs(self):
+        return {"namespace": self.request.query_params.get("namespace", "default")}

@@ -7,20 +7,23 @@ urlpatterns = [
         "post": "create"
     })),
     path("namespace/<name>/", NameSpaceView.as_view({
-        "get": "retrieve"
+        "get": "retrieve",
+        "delete": "destroy"
     })),
     path("deployment/", DeploymentView.as_view({
         "get": "list",
         "post": "create"
     })),
     path("deployment/<name>/", DeploymentView.as_view({
-        "get": "retrieve"
+        "get": "retrieve",
+        "delete": "destroy"
     })),
     path("pod/", PodView.as_view({
         "get": "list",
         "post": "create"
     })),
     path("pod/<name>/", PodView.as_view({
-        "get": "retrieve"
+        "get": "retrieve",
+        "delete": "destroy"
     }))
 ]
