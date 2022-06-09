@@ -13,6 +13,9 @@ class AppsV1ApiClient(object):
     create_func_mapping = {
         "DEPLOYMENT": "create_namespaced_deployment"
     }
+    delete_func_mapping = {
+        "DEPLOYMENT": "delete_namespaced_deployment"
+    }
 
     @classmethod
     def client(cls, configuration):
@@ -31,6 +34,10 @@ class CoreV1ApiClient(object):
     create_func_mapping = {
         "POD": "create_namespaced_pod",
         "NAMESPACE": "create_namespace"
+    }
+    delete_func_mapping = {
+        "POD": "delete_namespaced_pod",
+        "NAMESPACE": "delete_namespace"
     }
 
     @classmethod
@@ -88,4 +95,14 @@ class KubeClient:
             api_client.client(configuration),
             api_client.create_func_mapping[resource_obj],
             **func_args
+        )
+
+    def delete(self, resource_obj, api_client, configuration, **kwargs):
+        api_client = getattr(self, api_client)
+        if resource_obj not in api_client.delete_func_mapping:
+            raise ValueError("the resource object isn't valid!")
+        return self._make_func_call(
+            api_client.client(configuration),
+            api_client.delete_func_mapping[resource_obj],
+            **kwargs
         )

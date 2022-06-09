@@ -22,6 +22,14 @@ class Manager:
         resource_obj, api_client = self.get_resource_meta_data()
         return self._client.get(resource_obj, api_client, configuration, **kwargs)
 
+    def destroy(self, configuration, name, **kwargs):
+        resource_obj, api_client = self.get_resource_meta_data()
+        client_kwargs = {
+            "name": name,
+            **kwargs
+        }
+        return self._client.delete(resource_obj, api_client, configuration, **client_kwargs)
+
     def create_resource(self, configuration, **kwargs):
         """create the resource"""
         body = self.deserialize()
