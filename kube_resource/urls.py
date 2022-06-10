@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import DeploymentView, PodView, NameSpaceView, ReplicaSetView
+from .views import DeploymentView, PodView, NameSpaceView, EventView, ReplicaSetView
 
 urlpatterns = [
     path("namespace/", NameSpaceView.as_view({
@@ -33,5 +33,11 @@ urlpatterns = [
     path("pod/<name>/", PodView.as_view({
         "get": "retrieve",
         "delete": "destroy"
+    })),
+    path("event/", EventView.as_view({
+        "get": "list"
+    })),
+    path("event/<name>/", EventView.as_view({
+        "get": "retrieve"
     }))
 ]
