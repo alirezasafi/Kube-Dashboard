@@ -50,6 +50,14 @@ class ResourceView(ViewSet):
         serializer.destroy(request.auth, name, **client_kwargs)
         return Response(data={"message": "successfully deleted!"}, status=status.HTTP_204_NO_CONTENT)
 
+    def update(self, request, *args, **kwargs):
+        name = kwargs.get(self.lookup_field_kwargs)
+        client_kwargs = self.get_client_kwargs()
+        serializer = self.serializer_class()
+        response = serializer.patch(request.auth, name, **client_kwargs)
+        response_data = serializer.serialize(response)
+        return Response(data=response_data, status=status.HTTP_200_OK)
+
 
 class NameSpaceView(ResourceView):
     lookup_field_kwargs = "name"
