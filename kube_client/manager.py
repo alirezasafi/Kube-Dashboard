@@ -57,6 +57,8 @@ class Manager:
 
     def to_representation_data(self, data, fields):
         """use serializer field to get the proper value"""
+        if not data:
+            return {}
         ret = OrderedDict()
         for field in fields:
             if field.field_name not in data:

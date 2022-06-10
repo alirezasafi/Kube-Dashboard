@@ -5,16 +5,24 @@ from rest_framework.exceptions import APIException
 
 class AppsV1ApiClient(object):
     list_func_mapping = {
-        "DEPLOYMENT": "list_namespaced_deployment"
+        "DEPLOYMENT": "list_namespaced_deployment",
+        "STATEFUL_SET": "list_namespaced_stateful_set",
+        "REPLICA_SET": "list_namespaced_replica_set"
     }
     retrieve_func_mapping = {
-        "DEPLOYMENT": "read_namespaced_deployment"
+        "DEPLOYMENT": "read_namespaced_deployment",
+        "STATEFUL_SET": "read_namespaced_stateful_set",
+        "REPLICA_SET": "read_namespaced_replica_set"
     }
     create_func_mapping = {
-        "DEPLOYMENT": "create_namespaced_deployment"
+        "DEPLOYMENT": "create_namespaced_deployment",
+        "STATEFUL_SET": "create_namespaced_stateful_set",
+        "REPLICA_SET": "create_namespaced_replica_set"
     }
     delete_func_mapping = {
-        "DEPLOYMENT": "delete_namespaced_deployment"
+        "DEPLOYMENT": "delete_namespaced_deployment",
+        "STATEFUL_SET": "delete_namespaced_stateful_set",
+        "REPLICA_SET": "delete_namespaced_replica_set"
     }
 
     @classmethod
@@ -25,11 +33,13 @@ class AppsV1ApiClient(object):
 class CoreV1ApiClient(object):
     list_func_mapping = {
         "POD": "list_pod_for_all_namespaces",
-        "NAMESPACE": "list_namespace"
+        "NAMESPACE": "list_namespace",
+        "EVENT": "list_namespaced_event"
     }
     retrieve_func_mapping = {
         "POD": "read_namespaced_pod",
-        "NAMESPACE": "read_namespace"
+        "NAMESPACE": "read_namespace",
+        "EVENT": "read_namespaced_event"
     }
     create_func_mapping = {
         "POD": "create_namespaced_pod",
