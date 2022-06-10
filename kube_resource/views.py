@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
-from .serializers import deployment, pod, namespace, event, replica_set
+from .serializers import deployment, pod, namespace, event, replica_set, stateful_set
 
 
 class ResourceView(ViewSet):
@@ -67,6 +67,14 @@ class DeploymentView(ResourceView):
 class ReplicaSetView(ResourceView):
     lookup_field_kwargs = "name"
     serializer_class = replica_set.ReplicaSet
+
+    def get_client_kwargs(self):
+        return {"namespace": self.request.query_params.get("namespace", "default")}
+
+
+class StatefulSetView(ResourceView):
+    lookup_field_kwargs = "name"
+    serializer_class = stateful_set.StatefulSet
 
     def get_client_kwargs(self):
         return {"namespace": self.request.query_params.get("namespace", "default")}

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import DeploymentView, PodView, NameSpaceView, EventView, ReplicaSetView
+from .views import DeploymentView, PodView, NameSpaceView, EventView, ReplicaSetView, StatefulSetView
 
 urlpatterns = [
     path("namespace/", NameSpaceView.as_view({
@@ -23,6 +23,14 @@ urlpatterns = [
         "post": "create"
     })),
     path("replica-set/<name>/", ReplicaSetView.as_view({
+        "get": "retrieve",
+        "post": "create"
+    })),
+    path("stateful-set/", StatefulSetView.as_view({
+        "get": "list",
+        "post": "create"
+    })),
+    path("stateful-set/", StatefulSetView.as_view({
         "get": "retrieve",
         "post": "create"
     })),
