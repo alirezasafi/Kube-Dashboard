@@ -1,6 +1,8 @@
-from kubernetes import client
+from typing import Union
+from kubernetes.client import AppsV1Api, CoreV1Api, ApiClient
 from kubernetes.client.exceptions import ApiException
 from rest_framework.exceptions import APIException
+from .config import Configuration
 
 
 class AppsV1ApiClient(object):
@@ -31,8 +33,8 @@ class AppsV1ApiClient(object):
     }
 
     @classmethod
-    def client(cls, configuration):
-        return client.AppsV1Api(client.ApiClient(configuration))
+    def client(cls, configuration) -> AppsV1Api:
+        return AppsV1Api(ApiClient(configuration))
 
 
 class CoreV1ApiClient(object):
@@ -60,8 +62,8 @@ class CoreV1ApiClient(object):
     }
 
     @classmethod
-    def client(cls, configuration):
-        return client.CoreV1Api(client.ApiClient(configuration))
+    def client(cls, configuration) -> CoreV1Api:
+        return CoreV1Api(ApiClient(configuration))
 
 
 class KubeClient:
@@ -69,7 +71,13 @@ class KubeClient:
     core_v1 = CoreV1ApiClient()
 
     @staticmethod
-    def _make_func_call(api_client, func, **kwargs):
+    def _make_func_call(api_client: Union[CoreV1Api, AppsV1Api], func: str, **kwargs):
+        """
+        :param api_client: object of kubernetes api-client.
+        :param func: name of target function.
+        :param kwargs: api-client kwargs data.
+        :return:
+        """
         try:
             response = getattr(
                 api_client,
@@ -79,8 +87,15 @@ class KubeClient:
         except ApiException as e:
             raise APIException(detail=e.reason, code=e.status)
 
-    def list(self, resource_obj, api_client, configuration, **kwargs):
-        """use proper api-client to get the list of resource objects."""
+    def list(self, resource_obj: str, api_client: str, configuration: Configuration, **kwargs):
+        """
+        use proper api-client to get the list of resource objects.
+        :param resource_obj: type of the resource.
+        :param api_client: name of kubernetes api-client.
+        :param configuration: configuration object for the client.
+        :param kwargs: api-client kwargs data.
+        :return: resource object model.
+        """
         api_client = getattr(self, api_client)
         if resource_obj not in api_client.list_func_mapping:
             raise ValueError("the resource object isn't valid!")
@@ -90,8 +105,15 @@ class KubeClient:
             **kwargs
         )
 
-    def get(self, resource_obj, api_client, configuration, **kwargs):
-        """use proper api-client to get the resource object details"""
+    def get(self, resource_obj: str, api_client: str, configuration: Configuration, **kwargs):
+        """
+        use proper api-client to get the resource object details
+        :param resource_obj: type of the resource.
+        :param api_client: name of kubernetes api-client.
+        :param configuration: configuration object for the client.
+        :param kwargs: api-client kwargs data.
+        :return: list of resource object models.
+        """
         api_client = getattr(self, api_client)
         if resource_obj not in api_client.retrieve_func_mapping:
             raise ValueError("the resource object isn't valid!")
@@ -101,7 +123,16 @@ class KubeClient:
             **kwargs
         )
 
-    def create(self, body: object, resource_obj, api_client, configuration, **kwargs):
+    def create(self, body: object, resource_obj: str, api_client: str, configuration: Configuration, **kwargs):
+        """
+        use proper api-client to get the resource object details
+        :param body: resource object model.
+        :param resource_obj: type of the resource.
+        :param api_client: name of kubernetes api-client.
+        :param configuration: configuration object for the client.
+        :param kwargs: api-client kwargs data
+        :return: resource object model.
+        """
         """use proper api-client to create the resource element."""
         func_args = {
             "body": body,
@@ -116,7 +147,15 @@ class KubeClient:
             **func_args
         )
 
-    def delete(self, resource_obj, api_client, configuration, **kwargs):
+    def delete(self, resource_obj: str, api_client: str, configuration: Configuration, **kwargs):
+        """
+        use proper api-client to delete the resource object.
+        :param resource_obj: type of the resource.
+        :param api_client: name of kubernetes api-client.
+        :param configuration: configuration object for the client.
+        :param kwargs: api-client kwargs data
+        :return:
+        """
         api_client = getattr(self, api_client)
         if resource_obj not in api_client.delete_func_mapping:
             raise ValueError("the resource object isn't valid!")
@@ -126,7 +165,17 @@ class KubeClient:
             **kwargs
         )
 
-    def patch(self, name, body: object, resource_obj, api_client, configuration, **kwargs):
+    def patch(self, name: str, body: object, resource_obj: str, api_client: str, configuration: Configuration, **kwargs):
+        """
+        use proper api-client to update the resource object.
+        :param name: name of the resource object.
+        :param body: new resource object model.
+        :param resource_obj: type of the resource.
+        :param api_client: name of kubernetes api-client.
+        :param configuration: configuration object for the client.
+        :param kwargs: api-client kwargs data
+        :return: resource object model.
+        """
         func_args = {
             "body": body,
             "name": name,

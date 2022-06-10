@@ -23,7 +23,8 @@ class ResourceView(ViewSet):
         serializer = self.serializer_class()
         selectors = self.get_selectors()
         client_kwargs = self.get_client_kwargs()
-        response = serializer.list(request.auth, selectors, **client_kwargs)
+        serializer.configuration = request.auth
+        response = serializer.list(selectors, **client_kwargs)
         response_data = serializer.serialize(response, many=True)
         return Response(data=response_data, status=status.HTTP_200_OK)
 
@@ -31,7 +32,8 @@ class ResourceView(ViewSet):
         name = kwargs.get(self.lookup_field_kwargs)
         serializer = self.serializer_class()
         client_kwargs = self.get_client_kwargs()
-        response = serializer.get(request.auth, **{"name": name, **client_kwargs})
+        serializer.configuration = request.auth
+        response = serializer.get(**{"name": name, **client_kwargs})
         response_data = serializer.serialize(response)
         return Response(data=response_data, status=status.HTTP_200_OK)
 
@@ -39,7 +41,8 @@ class ResourceView(ViewSet):
         serializer = self.serializer_class(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         client_kwargs = self.get_client_kwargs()
-        response = serializer.create_resource(request.auth, **client_kwargs)
+        serializer.configuration = request.data
+        response = serializer.create_resource(**client_kwargs)
         response_data = serializer.serialize(response)
         return Response(data=response_data, status=status.HTTP_201_CREATED)
 
@@ -47,14 +50,16 @@ class ResourceView(ViewSet):
         name = kwargs.get(self.lookup_field_kwargs)
         client_kwargs = self.get_client_kwargs()
         serializer = self.serializer_class()
-        serializer.destroy(request.auth, name, **client_kwargs)
+        serializer.configuration = request.auth
+        serializer.destroy(name, **client_kwargs)
         return Response(data={"message": "successfully deleted!"}, status=status.HTTP_204_NO_CONTENT)
 
     def update(self, request, *args, **kwargs):
         name = kwargs.get(self.lookup_field_kwargs)
         client_kwargs = self.get_client_kwargs()
         serializer = self.serializer_class()
-        response = serializer.patch(request.auth, name, **client_kwargs)
+        serializer.configuration = request.auth
+        response = serializer.patch(name, **client_kwargs)
         response_data = serializer.serialize(response)
         return Response(data=response_data, status=status.HTTP_200_OK)
 
