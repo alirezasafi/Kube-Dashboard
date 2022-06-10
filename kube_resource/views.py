@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
-from .serializers import deployment, pod, namespace
+from .serializers import deployment, pod, namespace, replica_set
 
 
 class ResourceView(ViewSet):
@@ -30,7 +30,8 @@ class ResourceView(ViewSet):
     def retrieve(self, request, *args, **kwargs):
         name = kwargs.get(self.lookup_field_kwargs)
         serializer = self.serializer_class()
-        response = serializer.get(request.auth, **{"name": name})
+        client_kwargs = self.get_client_kwargs()
+        response = serializer.get(request.auth, **{"name": name, **client_kwargs})
         response_data = serializer.serialize(response)
         return Response(data=response_data, status=status.HTTP_200_OK)
 
@@ -58,6 +59,14 @@ class NameSpaceView(ResourceView):
 class DeploymentView(ResourceView):
     lookup_field_kwargs = "name"
     serializer_class = deployment.Deployment
+
+    def get_client_kwargs(self):
+        return {"namespace": self.request.query_params.get("namespace", "default")}
+
+
+class ReplicaSetView(ResourceView):
+    lookup_field_kwargs = "name"
+    serializer_class = replica_set.ReplicaSet
 
     def get_client_kwargs(self):
         return {"namespace": self.request.query_params.get("namespace", "default")}
