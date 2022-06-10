@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from kubernetes import client
 from .common import ObjectMeta
 
 
@@ -6,10 +7,16 @@ class IngressBackend(serializers.Serializer):
     service_name = serializers.CharField()
     service_port = serializers.CharField()
 
+    class Meta:
+        model = client.V1IngressBackend
+
 
 class HTTPIngressPath(serializers.Serializer):
     path = serializers.CharField()
     backend = IngressBackend()
+
+    class Meta:
+        model = client.V1HTTPIngressPath
 
 
 class HTTPIngressRuleValue(serializers.Serializer):
@@ -17,10 +24,16 @@ class HTTPIngressRuleValue(serializers.Serializer):
         child=HTTPIngressPath()
     )
 
+    class Meta:
+        model = client.V1HTTPIngressRuleValue
+
 
 class IngressRule(serializers.Serializer):
     host = serializers.CharField()
     http = HTTPIngressRuleValue()
+
+    class Meta:
+        model = client.V1IngressRule
 
 
 class IngresTLS(serializers.Serializer):
@@ -28,6 +41,9 @@ class IngresTLS(serializers.Serializer):
         child=serializers.CharField()
     )
     secret_name = serializers.CharField()
+
+    class Meta:
+        model = client.V1IngressTLS
 
 
 class IngressSpec(serializers.Serializer):
@@ -39,7 +55,13 @@ class IngressSpec(serializers.Serializer):
         child=IngresTLS()
     )
 
+    class Meta:
+        model = client.V1IngressSpec
+
 
 class Ingress(serializers.Serializer):
     metadata = ObjectMeta()
     spec = IngressSpec()
+
+    class Meta:
+        model = client.V1Ingress

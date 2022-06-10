@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from .common import ObjectMeta
+from kubernetes import client
+from kube_client.manager import Manager
+from .common import ObjectMeta, LocalObjectReference
 
 
 class ContainerPort(serializers.Serializer):
@@ -8,10 +10,16 @@ class ContainerPort(serializers.Serializer):
     container_port = serializers.IntegerField()
     protocol = serializers.CharField(default="TCP")
 
+    class Meta:
+        model = client.V1ContainerPort
+
 
 class ObjectFileSelector(serializers.Serializer):
     api_version = serializers.CharField()
     field_path = serializers.CharField(required=True)
+
+    class Meta:
+        model = client.V1ObjectFieldSelector
 
 
 class ResourceFieldSelector(serializers.Serializer):
@@ -19,15 +27,24 @@ class ResourceFieldSelector(serializers.Serializer):
     resource = serializers.CharField(required=True)
     divisor = serializers.CharField()
 
+    class Meta:
+        model = client.V1ResourceFieldSelector
+
 
 class ConfigMapKeySelector(serializers.Serializer):
     name = serializers.CharField()
     key = serializers.CharField(required=True)
 
+    class Meta:
+        model = client.V1ConfigMapKeySelector
+
 
 class SecretKeySelector(serializers.Serializer):
     name = serializers.CharField()
     key = serializers.CharField(required=True)
+
+    class Meta:
+        model = client.V1SecretKeySelector
 
 
 class EnvVarSource(serializers.Serializer):
@@ -36,20 +53,32 @@ class EnvVarSource(serializers.Serializer):
     config_map_key_ref = ConfigMapKeySelector()
     secret_key_ref = SecretKeySelector()
 
+    class Meta:
+        model = client.V1EnvVarSource
+
 
 class SecretEnvSource(serializers.Serializer):
     name = serializers.CharField()
     optional = serializers.BooleanField()
+
+    class Meta:
+        model = client.V1SecretEnvSource
 
 
 class ConfigMapEnvSource(serializers.Serializer):
     name = serializers.CharField()
     optional = serializers.BooleanField()
 
+    class Meta:
+        model = client.V1ConfigMapEnvSource
+
 
 class EnvFromSource(serializers.Serializer):
     config_map_ref = ConfigMapEnvSource()
     secret_ref = SecretEnvSource()
+
+    class Meta:
+        model = client.V1EnvFromSource
 
 
 class EnvVar(serializers.Serializer):
@@ -57,10 +86,16 @@ class EnvVar(serializers.Serializer):
     value = serializers.CharField()
     value_from = EnvVarSource()
 
+    class Meta:
+        model = client.V1EnvVar
+
 
 class ResourceRequirements(serializers.Serializer):
     limits = serializers.DictField()
     requests = serializers.DictField()
+
+    class Meta:
+        model = client.V1ResourceRequirements
 
 
 class VolumeMount(serializers.Serializer):
@@ -68,10 +103,16 @@ class VolumeMount(serializers.Serializer):
     read_only = serializers.BooleanField()
     mount_path = serializers.CharField()
 
+    class Meta:
+        model = client.V1VolumeMount
+
 
 class HTTPHeader(serializers.Serializer):
     name = serializers.CharField()
     value = serializers.CharField()
+
+    class Meta:
+        model = client.V1HTTPHeader
 
 
 class HTTPGetAction(serializers.Serializer):
@@ -82,13 +123,22 @@ class HTTPGetAction(serializers.Serializer):
         child=HTTPHeader()
     )
 
+    class Meta:
+        model = client.V1HTTPGetAction
+
 
 class TCPSocketAction(serializers.Serializer):
     port = serializers.IntegerField()
 
+    class Meta:
+        model = client.V1TCPSocketAction
+
 
 class ExecAction(serializers.Serializer):
     command = serializers.CharField()
+
+    class Meta:
+        model = client.V1ExecAction
 
 
 class Probe(serializers.Serializer):
@@ -101,22 +151,31 @@ class Probe(serializers.Serializer):
     failure_threshold = serializers.IntegerField()
     period_seconds = serializers.IntegerField()
 
+    class Meta:
+        model = client.V1Probe
+
 
 class Handler(serializers.Serializer):
     http_get = HTTPGetAction()
     tcp_socket = TCPSocketAction()
     exec = ExecAction()
 
+    class Meta:
+        model = client.V1LifecycleHandler
+
 
 class Lifecycle(serializers.Serializer):
     post_start = Handler()
     pre_Stop = Handler()
 
+    class Meta:
+        model = client.V1Lifecycle
+
 
 class Container(serializers.Serializer):
     name = serializers.CharField()
     image = serializers.CharField()
-    port = serializers.ListField(
+    ports = serializers.ListField(
         child=ContainerPort()
     )
     env = serializers.ListField(
@@ -140,16 +199,25 @@ class Container(serializers.Serializer):
         child=serializers.CharField()
     )
 
+    class Meta:
+        model = client.V1Container
+
 
 class SecretVolumeSource(serializers.Serializer):
     secret_name = serializers.CharField()
     optional = serializers.BooleanField()
     default_mode = serializers.IntegerField()
 
+    class Meta:
+        model = client.V1SecretVolumeSource
+
 
 class KeyToPath(serializers.Serializer):
     key = serializers.CharField(required=True)
     path = serializers.CharField(required=True)
+
+    class Meta:
+        model = client.V1KeyToPath
 
 
 class ConfigMapVolumeSource(serializers.Serializer):
@@ -157,9 +225,15 @@ class ConfigMapVolumeSource(serializers.Serializer):
     optional = serializers.BooleanField()
     default_mode = serializers.IntegerField()
 
+    class Meta:
+        model = client.V1ConfigMapVolumeSource
+
 
 class EmptyDirVolumeSource(serializers.Serializer):
     medium = serializers.CharField()
+
+    class Meta:
+        model = client.V1EmptyDirVolumeSource
 
 
 class NFSVolumeSource(serializers.Serializer):
@@ -167,9 +241,15 @@ class NFSVolumeSource(serializers.Serializer):
     read_only = serializers.BooleanField()
     server = serializers.CharField()
 
+    class Meta:
+        model = client.V1NFSVolumeSource
+
 
 class HostPathVolumeSource(serializers.Serializer):
     path = serializers.CharField()
+
+    class Meta:
+        model = client.V1HostPathVolumeSource
 
 
 class GCPersistentDiskVolumeSource(serializers.Serializer):
@@ -178,12 +258,18 @@ class GCPersistentDiskVolumeSource(serializers.Serializer):
     pd_name = serializers.CharField()
     readOnly = serializers.BooleanField()
 
+    class Meta:
+        model = client.V1GCEPersistentDiskVolumeSource
+
 
 class AWSElasticBlockStoreVolumeSource(serializers.Serializer):
     fs_type = serializers.CharField()
     partition = serializers.IntegerField()
     read_only = serializers.BooleanField()
     volume_id = serializers.CharField()
+
+    class Meta:
+        model = client.V1AWSElasticBlockStoreVolumeSource
 
 
 class Volume(serializers.Serializer):
@@ -195,6 +281,9 @@ class Volume(serializers.Serializer):
     host_path = HostPathVolumeSource()
     nfs = NFSVolumeSource()
     secret = SecretVolumeSource()
+
+    class Meta:
+        model = client.V1Volume
 
 
 class PodSpec(serializers.Serializer):
@@ -213,19 +302,30 @@ class PodSpec(serializers.Serializer):
     selector = serializers.DictField()
     service_account_name = serializers.CharField(default="default")
     automount_service_account_token = serializers.BooleanField()
-    # imagePullSecrets = serializers.ListField(
-    #     child=LocalObjectReference()
-    # )
+    image_pull_secrets = serializers.ListField(
+        child=LocalObjectReference()
+    )
     init_containers = serializers.ListField(
         child=Container()
     )
+
+    class Meta:
+        model = client.V1PodSpec
 
 
 class PodTemplateSpec(serializers.Serializer):
     metadata = ObjectMeta()
     spec = PodSpec()
 
+    class Meta:
+        model = client.V1PodTemplateSpec
 
-class Pod(serializers.Serializer):
+
+class Pod(serializers.Serializer, Manager):
     metadata = ObjectMeta()
     spec = PodSpec()
+
+    class Meta:
+        resource_object = "POD"
+        api_client = "core_v1"
+        model = client.V1Pod
