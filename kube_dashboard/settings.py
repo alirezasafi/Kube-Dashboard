@@ -15,7 +15,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'kube_resource',
-    'authentication'
+    'authentication',
+    'channels'
 ]
 
 MIDDLEWARE = [
@@ -47,6 +48,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'kube_dashboard.wsgi.application'
+ASGI_APPLICATION = 'kube_dashboard.asgi.application'
 
 DATABASES = {
     'default': {
