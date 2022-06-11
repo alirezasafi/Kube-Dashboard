@@ -1,5 +1,6 @@
-from django.urls import path
-from .views import DeploymentView, PodView, NameSpaceView, EventView, ReplicaSetView, StatefulSetView
+from django.urls import path, re_path
+from .views import DeploymentView, PodView, NameSpaceView, EventView, ReplicaSetView, StatefulSetView, \
+    DeploymentAsyncView
 
 urlpatterns = [
     path("namespace/", NameSpaceView.as_view({
@@ -52,4 +53,8 @@ urlpatterns = [
     path("event/<name>/", EventView.as_view({
         "get": "retrieve"
     }))
+]
+
+websocket_urlpatterns = [
+    re_path(r"resource/deployment/$", DeploymentAsyncView.as_asgi()),
 ]

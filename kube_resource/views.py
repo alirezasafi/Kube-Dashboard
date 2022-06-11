@@ -1,6 +1,10 @@
+from typing import Tuple
 from rest_framework import status
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
+from djangochannelsrestframework.generics import GenericAsyncAPIConsumer
+from djangochannelsrestframework.decorators import action
+from authentication.permission import WSIsAuthenticated
 from .serializers import deployment, pod, namespace, event, replica_set, stateful_set
 
 
@@ -41,7 +45,7 @@ class ResourceView(ViewSet):
         serializer = self.serializer_class(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         client_kwargs = self.get_client_kwargs()
-        serializer.configuration = request.data
+        serializer.configuration = request.auth
         response = serializer.create_resource(**client_kwargs)
         response_data = serializer.serialize(response)
         return Response(data=response_data, status=status.HTTP_201_CREATED)
@@ -107,3 +111,16 @@ class EventView(ResourceView):
 
     def get_client_kwargs(self):
         return {"namespace": self.request.query_params.get("namespace", "default")}
+
+
+class DeploymentAsyncView(GenericAsyncAPIConsumer):
+    permission_classes = [WSIsAuthenticated]
+    serializer_class = deployment.Deployment
+
+    @action()
+    async def status(self, name, **kwargs) -> Tuple[dict, int]:
+        serializer = self.serializer_class()
+        serializer.configuration = self.scope["auth"]
+        response = await serializer.get(**{"name": name})
+        response_data = await serializer.serialize(response.status)
+        return response_data, status.HTTP_200_OK
